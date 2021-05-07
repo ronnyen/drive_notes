@@ -3,9 +3,9 @@ from googleapiclient.http import MediaFileUpload
 from consts import NOTES_FOLDER_ID
 
 
-def get_folder_files_ids(service):
-    res = service.files().list(**{'q': f"'{NOTES_FOLDER_ID}' in parents"}).execute()
-    return [file['id'] for file in res.get('files')]
+def get_folder_docs(service):
+    res = service.files().list(**{'q': f"'{NOTES_FOLDER_ID}' in parents and trashed = false", "fields": '*'}).execute()
+    return [file for file in res.get('files') if 'document' in file['mimeType']]
 
 
 def get_file_content(service, file_id):
@@ -14,7 +14,7 @@ def get_file_content(service, file_id):
 
 def create_file_in_folder(service, file_path, file_name, folder_id):
     media = MediaFileUpload(file_path,
-                            mimetype='text/plain',
+                            mimetype='text/html',
                             resumable=True)
     file_metadata = {
         'name': file_name,
